@@ -1,0 +1,506 @@
+{
+  "name": "Website Response Time Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -48,
+        48
+      ],
+      "id": "6f73934a-85a4-4369-ab3e-6fbcd19f6274",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://www.google.com/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        400,
+        -144
+      ],
+      "id": "031a0f1f-bc67-4abe-ad52-ad3652c8be96",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "https://www.facebook.com/?locale=tr_TR",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        400,
+        48
+      ],
+      "id": "c927ff45-3818-46e5-9f87-c4faf30f8f02",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "url": "https://tr.linkedin.com/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        400,
+        240
+      ],
+      "id": "718ed7ff-3894-4513-bb26-8846a5d8175f",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "outputFieldName": "End_Time",
+        "options": {}
+      },
+      "id": "4a5593c7-40d3-4027-aa89-2eaf76d4f97d",
+      "name": "End Time Google",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        624,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getTimeBetweenDates",
+        "startDate": "={{ $(\"Start Time Google\").item.json.Start_Time }}",
+        "endDate": "={{ $(\"End Time Google\").item.json.End_Time }}",
+        "units": [
+          "millisecond"
+        ],
+        "outputFieldName": "google_response_time",
+        "options": {}
+      },
+      "id": "c6b9aac1-602a-4172-a1e7-ab2a04977429",
+      "name": "Calculate Google Response",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        848,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "outputFieldName": "End_Time",
+        "options": {}
+      },
+      "id": "95793c13-ceaa-4262-bc7a-165a377b11fc",
+      "name": "End Time Facebook",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        624,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getTimeBetweenDates",
+        "startDate": "={{ $(\"Start Time Facebook\").item.json.Start_Time }}",
+        "endDate": "={{ $(\"End Time Facebook\").item.json.End_Time }}",
+        "units": [
+          "millisecond"
+        ],
+        "outputFieldName": "facebook_response_time",
+        "options": {}
+      },
+      "id": "1f252874-dc46-441b-bfbc-72e1353f3dae",
+      "name": "Calculate Facebook Response",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        848,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "outputFieldName": "End_Time",
+        "options": {}
+      },
+      "id": "a37a8644-e0ce-42c4-a8b6-bf147fd2b000",
+      "name": "End Time LinkedIn",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        624,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getTimeBetweenDates",
+        "startDate": "={{ $(\"Start Time LinkedIn\").item.json.Start_Time }}",
+        "endDate": "={{ $(\"End Time LinkedIn\").item.json.End_Time }}",
+        "units": [
+          "millisecond"
+        ],
+        "outputFieldName": "linkedin_response_time",
+        "options": {}
+      },
+      "id": "5301f964-a7c9-4a5e-8928-3146cd6362a2",
+      "name": "Calculate LinkedIn Response",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        848,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "id": "ee37af78-00c2-4bad-9bf9-bea728ca875b",
+      "name": "Merge All Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1072,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "google_response_ms",
+              "value": "={{ $input.all()[0].json.google_response_time.milliseconds }}",
+              "type": "number"
+            },
+            {
+              "id": "2",
+              "name": "facebook_response_ms",
+              "value": "={{ $input.all()[1].json.facebook_response_time.milliseconds }}",
+              "type": "number"
+            },
+            {
+              "id": "3",
+              "name": "linkedin_response_ms",
+              "value": "={{ $input.all()[2].json.linkedin_response_time.milliseconds }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fe47ef9a-e395-49dd-b869-153893c810d8",
+      "name": "Combine All Response Times",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1296,
+        48
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "google_response_ms",
+              "value": "={{ $json.google_response_ms }}",
+              "type": "number"
+            },
+            {
+              "id": "2",
+              "name": "google_status",
+              "value": "={{ ($json.google_response_ms > 5000 ? \"closed\" : \"open\") + \" (\" + $json.google_response_ms + \"ms)\" }}",
+              "type": "string"
+            },
+            {
+              "id": "3",
+              "name": "facebook_response_ms",
+              "value": "={{ $json.facebook_response_ms }}",
+              "type": "number"
+            },
+            {
+              "id": "4",
+              "name": "facebook_status",
+              "value": "={{ ($json.facebook_response_ms > 5000 ? \"closed\" : \"open\") + \" (\" + $json.facebook_response_ms + \"ms)\" }}",
+              "type": "string"
+            },
+            {
+              "id": "5",
+              "name": "linkedin_response_ms",
+              "value": "={{ $json.linkedin_response_ms }}",
+              "type": "number"
+            },
+            {
+              "id": "6",
+              "name": "linkedin_status",
+              "value": "={{ ($json.linkedin_response_ms > 5000 ? \"closed\" : \"open\") + \" (\" + $json.linkedin_response_ms + \"ms)\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0957fa8b-b216-4cf2-a9be-364e42e45b38",
+      "name": "Check Thresholds",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1520,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "outputFieldName": "Start_Time",
+        "options": {}
+      },
+      "id": "1f94ebb2-5ac7-46af-a418-df70c30c2c79",
+      "name": "Start Time Google",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        176,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "outputFieldName": "Start_Time",
+        "options": {}
+      },
+      "id": "9d7d10e9-43e9-457d-a589-2ab5abc8728f",
+      "name": "Start Time Facebook",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        176,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "outputFieldName": "Start_Time",
+        "options": {}
+      },
+      "id": "abe8127e-e48b-49c8-adac-76518b5f8954",
+      "name": "Start Time LinkedIn",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        176,
+        240
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Start Time Google",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Start Time Facebook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Start Time LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "End Time Google",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "End Time Facebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "End Time LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "End Time Google": {
+      "main": [
+        [
+          {
+            "node": "Calculate Google Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "End Time Facebook": {
+      "main": [
+        [
+          {
+            "node": "Calculate Facebook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "End Time LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "Calculate LinkedIn Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Facebook Response": {
+      "main": [
+        [
+          {
+            "node": "Merge All Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Calculate Google Response": {
+      "main": [
+        [
+          {
+            "node": "Merge All Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge All Results": {
+      "main": [
+        [
+          {
+            "node": "Combine All Response Times",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate LinkedIn Response": {
+      "main": [
+        [
+          {
+            "node": "Merge All Results",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Combine All Response Times": {
+      "main": [
+        [
+          {
+            "node": "Check Thresholds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Thresholds": {
+      "main": [
+        []
+      ]
+    },
+    "Start Time Google": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Time Facebook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Time LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "df1dcbf0-9189-4db9-ab92-b0651c5734d1",
+  "meta": {
+    "instanceId": "bc69dc0a07367d2cf04b5f0692ccd5444a6d9ef84269bd7d4434d48c91d390c5"
+  },
+  "id": "aSPIfmHE4nE8I6Ws",
+  "tags": []
+}
